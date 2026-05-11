@@ -1,17 +1,17 @@
 package cx.rain.mc.inkraft.data.loot.condition;
 
+import com.mojang.serialization.MapCodec;
 import cx.rain.mc.inkraft.Inkraft;
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class ModConditions {
-    public static final DeferredRegister<LootItemConditionType> CONDITIONS = DeferredRegister.create(Inkraft.MODID, Registries.LOOT_CONDITION_TYPE);
+    public static final MapCodec<? extends LootItemCondition> STORY = StoryCondition.MAP_CODEC;
 
     public static void register() {
-        CONDITIONS.register();
+        Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE,
+                Identifier.fromNamespaceAndPath(Inkraft.MODID, "story"), STORY);
     }
-
-    public static final RegistrySupplier<LootItemConditionType> STORY = CONDITIONS.register("story", () -> StoryCondition.TYPE);
 }

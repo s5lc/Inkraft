@@ -4,15 +4,14 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'architectury-plugin' version "${architectury_plugin_version}"
-    id 'dev.architectury.loom' version "${architectury_loom_version}"
-    id 'com.github.johnrengelman.shadow' version "${shadow_plugin_version}" apply false
-    id 'me.shedaniel.unified-publishing' version "${unified_publishing_version}" apply false
+    id 'dev.architectury.loom-no-remap' version "${architectury_loom_version}"
+    id 'com.gradleup.shadow' version "${shadow_plugin_version}" apply false
 }
 
 def ENV = System.getenv()
 
 base {
-    archivesName = rootProject.archive_base_name
+    archivesName = "$rootProject.archive_base_name-common"
 }
 
 architectury {
@@ -28,8 +27,10 @@ loom {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi "dev.architectury:architectury:${rootProject.architectury_version}"
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    implementation "com.bladecoder.ink:blade-ink:${rootProject.blade_ink_version}"
+
+    compileOnly "net.kyori:adventure-platform-mod-shared:${rootProject.adventure_platform_version}"
 }
 
 sourceSets {
@@ -43,11 +44,20 @@ sourceSets {
     }
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = project.base.archivesName.get()
+            from components.java
+        }
+    }
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     apply plugin: 'architectury-plugin'
-    apply plugin: 'dev.architectury.loom'
+    apply plugin: 'dev.architectury.loom-no-remap'
 
     group = rootProject.maven_group
     version = "${rootProject.mod_version}+mc${project.minecraft_version}"
@@ -58,14 +68,13 @@ allprojects {
 
     loom {
         silentMojangMappingsLicense()
+
+        interfaceInjection {
+            enableDependencyInterfaceInjection = true
+        }
     }
 
     repositories {
-        maven {
-            name = 'ParchmentMC'
-            url = 'https://maven.parchmentmc.org'
-        }
-
         maven {
             name = 'Mod Menu'
             url = 'https://maven.terraformersmc.com/releases'
@@ -76,10 +85,10 @@ allprojects {
             url = 'https://maven.neoforged.net/releases/'
         }
 
-
         maven {
-            name = 'Yuluo'
-            url = 'https://maven.yuluo.dev/repository/maven-public/'
+            name = 'sonatype-oss-snapshots1'
+            url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            mavenContent { snapshotsOnly() }
         }
 
         mavenCentral()
@@ -87,53 +96,67 @@ allprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.layered() {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${rootProject.parchment_minecraft_version}:${rootProject.parchment_version}@zip")
-        }
-
         implementation "com.bladecoder.ink:blade-ink:${rootProject.blade_ink_version}"
+
+        compileOnly "org.jetbrains:annotations:${rootProject.jetbrains_annotation_version}"
+        compileOnly "org.projectlombok:lombok:${rootProject.lombok_version}"
+        annotationProcessor "org.projectlombok:lombok:${rootProject.lombok_version}"
+
+        testCompileOnly "org.projectlombok:lombok:${rootProject.lombok_version}"
+        testAnnotationProcessor "org.projectlombok:lombok:${rootProject.lombok_version}"
     }
 
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
-        options.release = 21
+        options.release = 25
     }
 
     java {
         withSourcesJar()
+
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
 
     jar {
         from('LICENSE') {
-            rename { "${it}_${project.archivesBaseName}" }
+            rename { "${it}_${project.archive_base_name}" }
         }
     }
 
-    processResources {
-        var resourcesToReplace = ['build_info.properties', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml',
-                                  'pack.mcmeta', 'fabric.mod.json']
-
+    var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
         var replaceTokens = [
-                build_time: ZonedDateTime.now().toString(),
-                mod_version: mod_version,
-                minecraft_version: minecraft_version,
-                forge_loader_version: forge_loader_version,
-                forge_version: forge_version,
-                fabric_loader_version: fabric_loader_version,
-                fabric_api_version: fabric_api_version,
-                neoforge_loader_version: neoforge_loader_version,
-                neoforge_version: neoforge_version,
-                architectury_version: architectury_version
+                build_time                      : ZonedDateTime.now().toString(),
+                mod_id                          : project.mod_id,
+                mod_version                     : project.mod_version,
+                mod_name                        : project.mod_name,
+                mod_description                 : project.mod_description,
+                mod_authors                     : project.mod_authors,
+                mod_license                     : project.mod_license,
+                mod_sources                     : project.mod_sources,
+                mod_issues_page                 : project.mod_issues_page,
+                maven_group                     : project.maven_group,
+                archive_base_name               : project.archive_base_name,
+                minecraft_version               : project.minecraft_version,
+                neoforge_loader_version         : project.neoforge_loader_version,
+                neoforge_version                : project.neoforge_version,
+                neoforge_minecraft_version_range: project.neoforge_minecraft_version_range,
+                neoforge_loader_version_range   : project.neoforge_loader_version_range,
+                neoforge_version_range          : project.neoforge_version_range,
+                fabric_loader_version           : project.fabric_loader_version,
+                fabric_api_version              : project.fabric_api_version,
+                fabric_minecraft_version_range  : project.fabric_minecraft_version_range,
+                fabric_loader_version_range     : project.fabric_loader_version_range,
+                fabric_api_version_range        : project.fabric_api_version_range
         ]
 
         inputs.properties replaceTokens
-        filteringCharset 'UTF-8'
-
-        filesMatching(resourcesToReplace) {
-            expand replaceTokens
-        }
+        expand replaceTokens
+        from 'src/main/templates'
+        into 'build/generated/sources/mod-metadata'
     }
+    sourceSets.main.resources.srcDir generateModMetadata
+    processResources.dependsOn generateModMetadata
 
     publishing {
         repositories {
@@ -152,21 +175,14 @@ allprojects {
                 }
             }
         }
-
-        publications {
-            maven(MavenPublication) {
-                from components.java
-            }
-        }
     }
 }
 
 subprojects {
-    apply plugin: 'com.github.johnrengelman.shadow'
-    apply plugin: 'me.shedaniel.unified-publishing'
+    apply plugin: 'com.gradleup.shadow'
 
     base {
-        archivesName = "$rootProject.archive_base_name-$project.name"
+        archivesName = "$rootProject.archive_base_name-${loom.getPlatform().get().id()}"
     }
 
     loom {
@@ -175,11 +191,13 @@ subprojects {
         runs {
             client {
                 client()
-
                 runDir 'run/client'
                 vmArg '-XX:+IgnoreUnrecognizedVMOptions'
                 vmArg '-XX:+AllowEnhancedClassRedefinition'
-                property 'file.encoding', 'utf8'
+                property 'file.encoding', 'UTF-8'
+                property 'stdout.encoding', 'UTF-8'
+                property 'stderr.encoding', 'UTF-8'
+                property 'stdin.encoding', 'UTF-8'
                 property 'inkraft.debug', 'true'
             }
 
@@ -188,7 +206,10 @@ subprojects {
                 runDir 'run/server'
                 vmArg '-XX:+IgnoreUnrecognizedVMOptions'
                 vmArg '-XX:+AllowEnhancedClassRedefinition'
-                property 'file.encoding', 'utf8'
+                property 'file.encoding', 'UTF-8'
+                property 'stdout.encoding', 'UTF-8'
+                property 'stderr.encoding', 'UTF-8'
+                property 'stdin.encoding', 'UTF-8'
                 property 'inkraft.debug', 'true'
             }
         }
@@ -223,19 +244,22 @@ subprojects {
         relocate 'com.bladecoder.ink', 'cx.rain.mc.inkraft.libs.com.bladecoder.ink'
     }
 
-    remapJar {
-        input.set shadowJar.archiveFile
-    }
-
     sourcesJar {
         def commonSources = rootProject.sourcesJar
         dependsOn commonSources
         from commonSources.archiveFile.map { zipTree(it) }
     }
 
-    components.java {
-        withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-            skip()
+    shadow {
+        addShadowVariantIntoJavaComponent = false
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifactId = project.base.archivesName.get()
+                from components.java
+            }
         }
     }
 }

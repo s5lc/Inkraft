@@ -1,17 +1,18 @@
 package cx.rain.mc.inkraft.fabric.platform;
 
-import cx.rain.mc.inkraft.platform.IPermissionHolder;
+import cx.rain.mc.inkraft.api.platform.permission.IPermissionHolder;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 
 public class PermissionHolder implements IPermissionHolder {
 
     @Override
     public boolean couldUse(CommandSourceStack source) {
-        return source.hasPermission(0);
+        return Commands.LEVEL_ALL.check(source.permissions());
     }
 
     @Override
     public boolean isAdmin(CommandSourceStack source) {
-        return source.hasPermission(2);
+        return Commands.LEVEL_GAMEMASTERS.check(source.permissions());
     }
 }

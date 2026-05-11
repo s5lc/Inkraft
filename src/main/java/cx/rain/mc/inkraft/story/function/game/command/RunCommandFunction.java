@@ -31,14 +31,13 @@ public class RunCommandFunction implements IStoryFunction {
         var command = args[0];
         var unescaped = StringArgumentParseHelper.unescape(command);
         var source = function.apply(instance.getPlayer());
-        var server = instance.getPlayer().getServer();
-        assert server != null;
+        var server = instance.getPlayer().level().getServer();
         return new IStoryVariable.Int(execute(unescaped, server, source));
     }
 
     private static int execute(String command, MinecraftServer server, CommandSourceStack commandSourceStack) {
         var result = new AtomicInteger();
-        commandSourceStack.withCallback((success, ret) -> result.set(ret), CommandResultCallback::chain);
+        commandSourceStack = commandSourceStack.withCallback((success, ret) -> result.set(ret), CommandResultCallback::chain);
         server.getCommands().performPrefixedCommand(commandSourceStack, command);
         return result.get();
     }

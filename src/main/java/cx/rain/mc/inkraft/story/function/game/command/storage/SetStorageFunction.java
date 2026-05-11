@@ -5,8 +5,10 @@ import cx.rain.mc.inkraft.story.IStoryVariable;
 import cx.rain.mc.inkraft.story.StoryInstance;
 import cx.rain.mc.inkraft.story.function.IStoryFunction;
 import cx.rain.mc.inkraft.utility.StringArgumentParseHelper;
+import lombok.extern.slf4j.Slf4j;
 import net.minecraft.nbt.*;
 
+@Slf4j
 public class SetStorageFunction implements IStoryFunction {
 
     @Override
@@ -16,9 +18,8 @@ public class SetStorageFunction implements IStoryFunction {
 
     @Override
     public IStoryVariable<?> apply(StoryInstance instance, String... args) {
-        var server = instance.getPlayer().getServer();
+        var server = instance.getPlayer().level().getServer();
         var id = StringArgumentParseHelper.parseId(args[0]);
-        assert server != null;
         var storage = server.getCommandStorage();
         var tag = storage.get(id);
 
@@ -28,7 +29,7 @@ public class SetStorageFunction implements IStoryFunction {
             path.set(tag, value);
             return IStoryVariable.Bool.TRUE;
         } catch (CommandSyntaxException ex) {
-            instance.getLogger().warn("NBT Path Error: ", ex);
+            log.warn("NBT Path Error: ", ex);
             return IStoryVariable.Bool.FALSE;
         }
     }

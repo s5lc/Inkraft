@@ -2,6 +2,8 @@ package cx.rain.mc.inkraft.utility;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ public class ItemStackHelper {
         var p = StringArgumentParseHelper.parseNbtPath(path);
         return item -> {
             try {
-                var l = p.get(item.save(registries));
+                var l = p.get(saveItemStack(registries, item));
                 return !l.isEmpty() && l.stream().allMatch(e -> e.equals(n));
             } catch (CommandSyntaxException ignored) {
             }
@@ -49,7 +51,7 @@ public class ItemStackHelper {
 
     public static List<ItemStack> match(ServerPlayer player, Predicate<ItemStack> predicate) {
         return player.getInventory()
-                .items
+                .getNonEquipmentItems()
                 .stream()
                 .filter(predicate)
                 .collect(Collectors.toList());
@@ -71,15 +73,25 @@ public class ItemStackHelper {
         if (!tagPath.isEmpty() && !tagValue.isEmpty()) {
             var p = StringArgumentParseHelper.parseNbtPath(tagPath);
             var t = StringArgumentParseHelper.parseNbt(tagValue);
-            var n = result.save(registries);
+            var n = saveItemStack(registries, result);
             try {
                 p.set(n, t);
-                result = ItemStack.parse(registries, n).orElseThrow();
+                result = parseItemStack(registries, n);
             } catch (CommandSyntaxException ex) {
                 log.warn("ItemStack parse error: ", ex);
             }
         }
 
         return result;
+    }
+
+    private static Tag saveItemStack(HolderLookup.Provider registries, ItemStack item) {
+        var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        return ItemStack.CODEC.encodeStart(ops, item).getOrThrow();
+    }
+
+    private static ItemStack parseItemStack(HolderLookup.Provider registries, Tag tag) {
+        var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        return ItemStack.CODEC.parse(ops, tag).getOrThrow();
     }
 }

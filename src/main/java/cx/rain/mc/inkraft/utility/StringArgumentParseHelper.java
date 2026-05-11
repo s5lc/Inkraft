@@ -1,16 +1,16 @@
 package cx.rain.mc.inkraft.utility;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
@@ -78,7 +78,7 @@ public class StringArgumentParseHelper {
 
     public static Tag parseNbt(String value) {
         try {
-            return new TagParser(new StringReader(value)).readValue();
+            return TagParser.create(NbtOps.INSTANCE).parseFully(value);
         } catch (CommandSyntaxException ex) {
             log.warn("Malformed Tag: {}", value);
             throw new RuntimeException(ex);
@@ -89,8 +89,8 @@ public class StringArgumentParseHelper {
         return parseInt(count, 1);
     }
 
-    public static ResourceLocation parseId(String id) {
-        return ResourceLocation.parse(id);
+    public static Identifier parseId(String id) {
+        return Identifier.parse(id);
     }
 
     public static int parseInt(String str, int defaultValue) {

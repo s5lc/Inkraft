@@ -5,8 +5,10 @@ import cx.rain.mc.inkraft.story.IStoryVariable;
 import cx.rain.mc.inkraft.story.StoryInstance;
 import cx.rain.mc.inkraft.story.function.IStoryFunction;
 import cx.rain.mc.inkraft.utility.StringArgumentParseHelper;
+import lombok.extern.slf4j.Slf4j;
 import net.minecraft.nbt.NumericTag;
 
+@Slf4j
 public class GetStorageFunction implements IStoryFunction {
 
     @Override
@@ -16,8 +18,7 @@ public class GetStorageFunction implements IStoryFunction {
 
     @Override
     public IStoryVariable<?> apply(StoryInstance instance, String... args) {
-        var server = instance.getPlayer().getServer();
-        assert server != null;
+        var server = instance.getPlayer().level().getServer();
         var id = StringArgumentParseHelper.parseId(args[0]);
         var storage = server.getCommandStorage();
         var tag = storage.get(id);
@@ -28,14 +29,14 @@ public class GetStorageFunction implements IStoryFunction {
             if (list.size() == 1) {
                 var t = list.getFirst();
                 if (t instanceof NumericTag n) {
-                    return new IStoryVariable.Float(n.getAsFloat());
+                    return new IStoryVariable.Float(n.floatValue());
                 }
-                return IStoryVariable.fromString(t.getAsString());
+                return IStoryVariable.fromString(t.asString().orElseGet(t::toString));
             } else {
                 return new IStoryVariable.Int(list.size());
             }
         } catch (CommandSyntaxException ex) {
-            instance.getLogger().warn("NBT Path Error: ", ex);
+            log.warn("NBT Path Error: ", ex);
         }
 
         return IStoryVariable.Bool.FALSE;

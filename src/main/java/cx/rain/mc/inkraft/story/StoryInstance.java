@@ -1,31 +1,31 @@
 package cx.rain.mc.inkraft.story;
 
 import com.bladecoder.ink.runtime.Choice;
-import com.bladecoder.ink.runtime.Error;
 import com.bladecoder.ink.runtime.Story;
 import cx.rain.mc.inkraft.ModConstants;
-import cx.rain.mc.inkraft.data.story.StoryRegistry;
+import cx.rain.mc.inkraft.engine.EngineManager;
+import cx.rain.mc.inkraft.registry.InkraftRegistries;
 import cx.rain.mc.inkraft.timer.ITaskManager;
-import cx.rain.mc.inkraft.story.function.StoryFunctions;
-import cx.rain.mc.inkraft.platform.IInkPlayerData;
+import cx.rain.mc.inkraft.api.platform.storage.IInkPlayerData;
 import cx.rain.mc.inkraft.timer.cancellation.CancellableToken;
 import cx.rain.mc.inkraft.utility.StringArgumentParseHelper;
 import cx.rain.mc.inkraft.utility.TextStyleHelper;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import org.slf4j.Logger;
 
 import java.util.*;
 
+@Slf4j
+@Getter
 public class StoryInstance {
-    private final Logger logger;
-    private final StoriesManager manager;
-    private final StoryRegistry registry;
-    private final ITaskManager taskManager;
+    private final EngineManager manager;
 
     private final ServerPlayer player;
     private final IInkPlayerData data;
@@ -33,12 +33,8 @@ public class StoryInstance {
     private Story story;
     private CancellableToken cancellationToken;
 
-    public StoryInstance(Logger logger, StoriesManager manager, StoryRegistry registry, ITaskManager taskManager,
-                         ServerPlayer player, IInkPlayerData data) {
-        this.logger = logger;
+    public StoryInstance(EngineManager manager, ServerPlayer player, IInkPlayerData data) {
         this.manager = manager;
-        this.registry = registry;
-        this.taskManager = taskManager;
         this.player = player;
         this.data = data;
 
@@ -47,49 +43,17 @@ public class StoryInstance {
 
     // <editor-fold desc="Dependencies.">
 
-    public Logger getLogger() {
-        return logger;
-    }
-
-    public StoriesManager getManager() {
-        return manager;
-    }
-
-    public StoryRegistry getRegistry() {
-        return registry;
-    }
-
-    public ITaskManager getTaskManager() {
-        return taskManager;
-    }
-
-    public ServerPlayer getPlayer() {
-        return player;
-    }
-
-    public IInkPlayerData getData() {
-        return data;
-    }
-
-    public Story getStory() {
-        return story;
-    }
-
-    public CancellableToken getCancellationToken() {
-        return cancellationToken;
-    }
-
     // </editor-fold>
 
     // <editor-fold desc="Init.">
 
-    public void newStory(ResourceLocation path) {
+    public void newStory(Identifier path) {
         stop();
         data.setStory(path);
         data.setEnded(false);
 
-        var str = registry.get(path);
         try {
+            var str = EngineManager.getInstance().getStoryRegistry().get(path);
             story = new Story(str);
             story.onError = StoryErrorHandler.INSTANCE;
             bindStoryFunctions();
@@ -104,9 +68,9 @@ public class StoryInstance {
         }
 
         var storyId = data.getStory();
-        if (!registry.has(storyId)) {
+        if (storyId == null || !EngineManager.getInstance().getStoryRegistry().has(storyId)) {
             data.resetState();
-            logger.warn("Story {} is no longer exists.", storyId);
+            log.warn("Story {} is no longer exists.", storyId);
             return;
         }
 
@@ -153,7 +117,7 @@ public class StoryInstance {
 
         cancellationToken = new CancellableToken();
         var finalPause = pause;
-        taskManager.run(() -> tickStory(finalPause), cancellationToken, 0, pause);
+        manager.getTaskManager().run(() -> tickStory(finalPause), cancellationToken, 0, pause);
     }
 
     private void tickStory(final int pause) {
@@ -213,8 +177,8 @@ public class StoryInstance {
         for (int i = 0; i < choices.size(); i++) {
             var choice = choices.get(i);
             var component = Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE, TextStyleHelper.parseStyle(choice.getText().trim())).withStyle(ChatFormatting.GREEN);
-            component.setStyle(component.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/inkraft next " + token + " " + i)));
-            component.setStyle(component.getStyle().withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT).withStyle(ChatFormatting.YELLOW))));
+            component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token + " " + i)));
+            component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT).withStyle(ChatFormatting.YELLOW))));
             player.sendSystemMessage(component);
         }
     }
@@ -223,8 +187,8 @@ public class StoryInstance {
         var token = UUID.randomUUID();
         data.setContinuousToken(token);
         var component = Component.translatable(ModConstants.Messages.STORY_NEXT).withStyle(ChatFormatting.GREEN);
-        component.setStyle(component.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/inkraft next " + token)));
-        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
+        component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token)));
+        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
         player.sendSystemMessage(component);
     }
 
@@ -232,8 +196,8 @@ public class StoryInstance {
         var token = UUID.randomUUID();
         data.setContinuousToken(token);
         var component = Component.translatable(ModConstants.Messages.STORY_NEXT).withStyle(ChatFormatting.GREEN);
-        component.setStyle(component.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/inkraft current")));
-        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
+        component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft current")));
+        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
         player.sendSystemMessage(component);
     }
 
@@ -254,7 +218,7 @@ public class StoryInstance {
         try {
             return story.getCurrentText();
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
             return "";
         }
     }
@@ -268,7 +232,7 @@ public class StoryInstance {
             story.Continue();
             saveStory();
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 
@@ -281,7 +245,7 @@ public class StoryInstance {
             story.chooseChoiceIndex(index);
             nextLine();
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 
@@ -306,7 +270,7 @@ public class StoryInstance {
             story.switchFlow(name);
             story.choosePathString(knot);
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 
@@ -314,7 +278,7 @@ public class StoryInstance {
         try {
             story.removeFlow(name);
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 
@@ -322,7 +286,7 @@ public class StoryInstance {
         try {
             story.switchFlow(name);
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 
@@ -330,7 +294,7 @@ public class StoryInstance {
         try {
             story.switchToDefaultFlow();
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 
@@ -344,8 +308,9 @@ public class StoryInstance {
 
     private void bindStoryFunctions() {
         try {
-            for (var entry : StoryFunctions.FUNCTIONS) {
-                var func = entry.get();
+            var functions = player.registryAccess().lookupOrThrow(InkraftRegistries.STORY_FUNCTIONS);
+            for (var entry : functions.entrySet()) {
+                var func = entry.getValue();
 
                 story.bindExternalFunction(func.getName(), args -> {
                     var unescaped = Arrays.stream(args)
@@ -364,18 +329,18 @@ public class StoryInstance {
                             return value;
                         }
                     } catch (Throwable ex) {
-                        logger.warn("Running function {}", func.getName());
+                        log.warn("Running function {}", func.getName());
                         for (int i = 0; i < unescaped.length; i++) {
                             var a = unescaped[i];
-                            logger.warn("Arg {}: {}", i, a);
+                            log.warn("Arg {}: {}", i, a);
                         }
-                        logger.warn("Inner: ", ex);
+                        log.warn("Inner: ", ex);
                     }
                     return false;
                 }, false);
             }
         } catch (Throwable ex) {
-            logger.error("An error I can't handle!", ex);
+            log.error("An error I can't handle!", ex);
         }
     }
 

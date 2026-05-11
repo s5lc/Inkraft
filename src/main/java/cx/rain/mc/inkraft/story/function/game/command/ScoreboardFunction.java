@@ -25,7 +25,7 @@ public class ScoreboardFunction implements IStoryFunction {
     @Override
     public IStoryVariable<?> apply(StoryInstance instance, String... args) {
         var player = instance.getPlayer();
-        var scoreboard = player.getScoreboard();
+        var scoreboard = player.level().getScoreboard();
         var objective = scoreboard.getObjective(args[0]);
         if (objective == null) {
             return IStoryVariable.Bool.FALSE;

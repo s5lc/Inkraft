@@ -1,22 +1,18 @@
 package cx.rain.mc.inkraft.neoforge;
 
 import cx.rain.mc.inkraft.Inkraft;
-import cx.rain.mc.inkraft.neoforge.platform.ModAttachments;
+import cx.rain.mc.inkraft.neoforge.registry.ModAttachments;
+import cx.rain.mc.inkraft.neoforge.registry.ModConditions;
+import cx.rain.mc.inkraft.neoforge.registry.ModStoryFunctions;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 @Mod(Inkraft.MODID)
 public class InkraftNeoForge {
-    private final Inkraft mod;
-
     public InkraftNeoForge(IEventBus bus) {
-        bus.addListener(this::setup);
-        mod = new Inkraft();
+        Inkraft.init();
         ModAttachments.register(bus);
-    }
-
-    private void setup(FMLCommonSetupEvent event) {
-        mod.init();
+        ModConditions.register(bus);
+        ModStoryFunctions.register(bus);
     }
 }

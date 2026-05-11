@@ -5,7 +5,7 @@ import cx.rain.mc.inkraft.story.StoryInstance;
 import cx.rain.mc.inkraft.story.function.IStoryFunction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 import java.util.function.Function;
@@ -35,14 +35,18 @@ public class WorldTimeFunction implements IStoryFunction {
     private static Level tryParseLevel(StoryInstance instance, String id) {
         try {
             if (!id.isEmpty()) {
-                var levelId = ResourceLocation.tryParse(id);
+                var levelId = Identifier.tryParse(id);
                 if (levelId != null) {
-                    return instance.getPlayer().server.getLevel(ResourceKey.create(Registries.DIMENSION, levelId));
+                    var server = instance.getPlayer().level().getServer();
+                    var level = server.getLevel(ResourceKey.create(Registries.DIMENSION, levelId));
+                    if (level != null) {
+                        return level;
+                    }
                 }
             }
         } catch (Exception ignored) {
         }
 
-        return instance.getPlayer().serverLevel();
+        return instance.getPlayer().level();
     }
 }

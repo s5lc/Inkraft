@@ -9,13 +9,15 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import cx.rain.mc.inkraft.Inkraft;
 import cx.rain.mc.inkraft.InkraftPlatform;
 import cx.rain.mc.inkraft.ModConstants;
+import cx.rain.mc.inkraft.engine.EngineManager;
+import cx.rain.mc.inkraft.registry.InkraftRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.concurrent.CompletableFuture;
@@ -40,7 +42,7 @@ public class InkraftCommand {
 
         INKRAFT.then(literal("start")
                 .requires(InkraftPlatform.getPermissionManager()::isAdmin)
-                .then(argument(ARGUMENT_ID, ResourceLocationArgument.id())
+                .then(argument(ARGUMENT_ID, IdentifierArgument.id())
                         .suggests(InkraftCommand::suggestStart)
                         .then(argument(ARGUMENT_PLAYER, EntityArgument.player())
                                 .requires(InkraftPlatform.getPermissionManager()::isAdmin)
@@ -84,14 +86,14 @@ public class InkraftCommand {
     }
 
     private static int onStart(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var id = ResourceLocationArgument.getId(context, ARGUMENT_ID);
+        var id = IdentifierArgument.getId(context, ARGUMENT_ID);
         var player = context.getSource().getPlayerOrException();
         doStart(player, id);
         return 1;
     }
 
     private static int onStartPlayer(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var id = ResourceLocationArgument.getId(context, ARGUMENT_ID);
+        var id = IdentifierArgument.getId(context, ARGUMENT_ID);
         var player = EntityArgument.getPlayer(context, ARGUMENT_PLAYER);
         doStart(player, id);
         return 1;
@@ -193,36 +195,36 @@ public class InkraftCommand {
 
     // <editor-fold desc="Logic.">
 
-    private static void doStart(ServerPlayer player, ResourceLocation id) {
-        var story = Inkraft.getInstance().getStoriesManager().get(player);
+    private static void doStart(ServerPlayer player, Identifier id) {
+        var story = EngineManager.getInstance().get(player);
         story.stop();
         story.newStory(id);
         story.start();
     }
 
     private static void doNext(ServerPlayer player) {
-        var story = Inkraft.getInstance().getStoriesManager().get(player);
+        var story = EngineManager.getInstance().get(player);
         story.stop();
         story.nextLine();
         story.start();
     }
 
     private static void doChoice(ServerPlayer player, int index) {
-        var story = Inkraft.getInstance().getStoriesManager().get(player);
+        var story = EngineManager.getInstance().get(player);
         story.stop();
         story.choose(index);
         story.start();
     }
 
     private static void doCurrent(ServerPlayer player) {
-        var story = Inkraft.getInstance().getStoriesManager().get(player);
+        var story = EngineManager.getInstance().get(player);
         story.stop();
         story.loadStory();
         story.start();
     }
 
     private static void doReset(ServerPlayer player) {
-        var story = Inkraft.getInstance().getStoriesManager().get(player);
+        var story = EngineManager.getInstance().get(player);
         story.getData().clearData();
         story.stop();
     }
@@ -233,7 +235,8 @@ public class InkraftCommand {
 
     private static CompletableFuture<Suggestions> suggestStart(final CommandContext<CommandSourceStack> context,
                                                                final SuggestionsBuilder builder) throws CommandSyntaxException {
-        for (var story : Inkraft.getInstance().getStoryRegistry().getAll()) {
+        var stories = EngineManager.getInstance().getStoryRegistry();
+        for (var story : stories.getAll()) {
             builder.suggest(story.toString());
         }
         return builder.buildFuture();
@@ -243,7 +246,7 @@ public class InkraftCommand {
                                                                 final SuggestionsBuilder builder) throws CommandSyntaxException {
         try {
             var object = EntityArgument.getPlayer(context, ARGUMENT_PLAYER);
-            for (var choice : Inkraft.getInstance().getStoriesManager().get(object).getChoices()) {
+            for (var choice : EngineManager.getInstance().get(object).getChoices()) {
                 builder.suggest(choice.getIndex(), choice::getText);
             }
             return builder.buildFuture();
@@ -251,7 +254,7 @@ public class InkraftCommand {
         }
 
         var player = context.getSource().getPlayerOrException();
-        for (var choice : Inkraft.getInstance().getStoriesManager().get(player).getChoices()) {
+        for (var choice : EngineManager.getInstance().get(player).getChoices()) {
             builder.suggest(choice.getIndex(), choice::getText);
         }
         return builder.buildFuture();

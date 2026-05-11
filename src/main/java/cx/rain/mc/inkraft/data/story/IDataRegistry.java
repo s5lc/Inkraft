@@ -1,5 +1,7 @@
 package cx.rain.mc.inkraft.data.story;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Set;
 
 public interface IDataRegistry<K, V> {
@@ -7,7 +9,7 @@ public interface IDataRegistry<K, V> {
 
     void clear();
 
-    V get(K key);
+    @Nullable V get(K key);
 
     boolean has(K key);
 
