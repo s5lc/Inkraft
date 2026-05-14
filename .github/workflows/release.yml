@@ -25,7 +25,7 @@ jobs:
           path: 'output'
       - run: ls -R output
 
-      - name: Publish pre-release
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           draft: false
