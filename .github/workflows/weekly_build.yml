@@ -1,0 +1,43 @@
+name: Weekly snapshot build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    if: github.ref_name == 'main'
+    secrets: inherit
+    with:
+      mod-release: false
+      upload-artifacts: true
+      publish-maven: true
+
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: 'build'
+          path: 'output'
+      - run: ls -R output
+
+      - name: Remove last week's build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete weekly-build --yes --cleanup-tag --repo ${{ github.repository }} 2>/dev/null || true
+
+      - name: Publish pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: true
+          generate_release_notes: true
+          preserve_order: true
+          tag_name: 'weekly-build'
+          name: "Weekly build #${{ github.run_number }}"
+          files: |
+            output/**/*@(-neoforge|-fabric)*@(.[0-9]|-SNAPSHOT)+mc@(.[0-9]).jar
