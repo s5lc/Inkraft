@@ -11,6 +11,7 @@
   "message.story.next.choice": "[Option] 1$s",
   "message.story.next.choice.hint": "Click to choose this option",
   "message.story.next.hint": "Click to continue",
+  "message.story.not_found": "Error! Story %1$s not found.",
   "message.story.option_outdated": "Error! This button is outdated.",
   "message.story.resume": "[You have unfinished chat]",
   "message.story.resume.hint": "Click to continue"

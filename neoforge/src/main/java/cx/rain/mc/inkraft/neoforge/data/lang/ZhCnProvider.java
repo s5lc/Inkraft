@@ -21,6 +21,7 @@ public class ZhCnProvider extends LanguageProvider {
 
         add(ModConstants.Messages.STORY_ALREADY_END, "错误！对话已结束。");
         add(ModConstants.Messages.STORY_OPTION_OUTDATED, "错误！按钮已过期。");
+        add(ModConstants.Messages.STORY_NOT_FOUND, "错误！剧情脚本 %1$s 不存在。");
 
         add(ModConstants.Messages.STORY_NEXT, "【继续】");
         add(ModConstants.Messages.STORY_NEXT_CHOICE, "【选项】%1$s");

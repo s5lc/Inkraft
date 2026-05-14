@@ -21,6 +21,7 @@ public class EnUsProvider extends LanguageProvider {
 
         add(ModConstants.Messages.STORY_ALREADY_END, "Error! The chat is over.");
         add(ModConstants.Messages.STORY_OPTION_OUTDATED, "Error! This button is outdated.");
+        add(ModConstants.Messages.STORY_NOT_FOUND, "Error! Story %1$s not found.");
 
         add(ModConstants.Messages.STORY_NEXT, "[Continue]");
         add(ModConstants.Messages.STORY_NEXT_CHOICE, "[Option] 1$s");

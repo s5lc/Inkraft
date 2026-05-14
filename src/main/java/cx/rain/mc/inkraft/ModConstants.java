@@ -11,6 +11,7 @@ public class ModConstants {
 
         public static final String STORY_ALREADY_END = "message.story.already_end";
         public static final String STORY_OPTION_OUTDATED = "message.story.option_outdated";
+        public static final String STORY_NOT_FOUND = "message.story.not_found";
 
         public static final String STORY_NEXT = "message.story.next";
         public static final String STORY_NEXT_CHOICE = "message.story.next.choice";

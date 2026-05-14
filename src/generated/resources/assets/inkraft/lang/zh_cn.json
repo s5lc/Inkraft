@@ -11,6 +11,7 @@
   "message.story.next.choice": "【选项】%1$s",
   "message.story.next.choice.hint": "点击选择",
   "message.story.next.hint": "点击继续",
+  "message.story.not_found": "错误！剧情脚本 %1$s 不存在。",
   "message.story.option_outdated": "错误！按钮已过期。",
   "message.story.resume": "【你还在一段对话中】",
   "message.story.resume.hint": "点击继续"

@@ -14,7 +14,7 @@ public class PlayerListeners {
         story.loadStory();
 
         if (!story.isStoryEnded()) {
-            var component = Component.translatable(ModConstants.Messages.STORY_RESUME).withStyle(ChatFormatting.GREEN);
+            var component = Component.translatable(ModConstants.Messages.STORY_RESUME).withStyle(ChatFormatting.YELLOW);
             component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft current")));
             component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_RESUME_HINT).withStyle(ChatFormatting.YELLOW))));
             player.sendSystemMessage(component);
