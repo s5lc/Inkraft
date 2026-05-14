@@ -22,9 +22,9 @@ dependencies {
 
 unifiedPublishing {
     project {
-        displayName = "Inkraft Fabric ${rootProject.mod_version} for MC ${rootProject.minecraft_version}"
-        version = rootProject.version
-        gameVersions = [rootProject.minecraft_version]
+        displayName = "Inkraft Fabric ${rootProject.mod_version} (MC ${rootProject.minecraft_version})"
+        version = "${rootProject.version}-fabric"
+        gameVersions = rootProject.game_versions.split(',')
         gameLoaders = ['fabric']
         releaseType = 'release'
 
