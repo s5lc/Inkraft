@@ -33,7 +33,7 @@ unifiedPublishing {
     project {
         displayName = "Inkraft NeoForge ${rootProject.mod_version} (MC ${rootProject.minecraft_version})"
         version = "${rootProject.version}-neoforge"
-        gameVersions = rootProject.game_versions.split(',')
+        gameVersions = rootProject.game_versions.split(',').toList()
         gameLoaders = ['neoforge']
         releaseType = 'release'
 
