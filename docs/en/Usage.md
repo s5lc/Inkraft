@@ -1,5 +1,7 @@
 # Usage
 
+Other languages: [简体中文](../zh/使用方法.md)
+
 ## Basic Concepts
 
 - **Engine**: Inkraft itself.

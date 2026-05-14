@@ -1,5 +1,8 @@
 # Inkraft
+
 使用[ink语言](https://github.com/inkle/ink)为Minecraft编写交互式对话。
+
+其他语言: [英语](README.md)
 
 ## 功能特性
 

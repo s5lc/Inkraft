@@ -2,6 +2,8 @@
 
 Write interactive conversations for Minecraft with the [Ink script language](https://github.com/inkle/ink).
 
+Other languages: [简体中文](README.zh.md)
+
 ## Features
 
 - In game, the engine is entirely command-driven, so it can work together with other mods.

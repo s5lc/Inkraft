@@ -1,5 +1,7 @@
 # Writing Story Scripts
 
+Other languages: [简体中文](../zh/剧情脚本编写.md)
+
 For Ink script syntax, see the [official tutorial](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md).
 
 The rest of this document may refer to concepts from the Ink scripting language.
