@@ -6,6 +6,7 @@ plugins {
     id 'architectury-plugin' version "${architectury_plugin_version}"
     id 'dev.architectury.loom-no-remap' version "${architectury_loom_version}"
     id 'com.gradleup.shadow' version "${shadow_plugin_version}" apply false
+    id 'me.shedaniel.unified-publishing' version "${unified_publishing_version}" apply false
 }
 
 def ENV = System.getenv()

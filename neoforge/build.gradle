@@ -1,3 +1,7 @@
+plugins {
+    id 'me.shedaniel.unified-publishing'
+}
+
 architectury {
     platformSetupLoomIde()
     neoForge()
@@ -23,4 +27,29 @@ dependencies {
 //    implementation(include("net.kyori:adventure-platform-neoforge:${rootProject.adventure_platform_version}"))
     common(project(':')) { transitive false }
     shadowBundle project(path: ':', configuration: 'transformProductionNeoForge')
+}
+
+unifiedPublishing {
+    project {
+        displayName = "Inkraft NeoForge ${rootProject.mod_version} for MC ${rootProject.minecraft_version}"
+        version = rootProject.version
+        gameVersions = [rootProject.minecraft_version]
+        gameLoaders = ['neoforge']
+        releaseType = 'release'
+
+        mainPublication tasks.shadowJar
+
+        relations {
+        }
+
+        curseforge {
+            token = Objects.requireNonNullElse(System.getenv('CURSEFORGE_TOKEN'), "")
+            id = rootProject.curseforge_project_id
+        }
+
+        modrinth {
+            token = Objects.requireNonNullElse(System.getenv('MODRINTH_TOKEN'), "")
+            id = rootProject.modrinth_project_id
+        }
+    }
 }

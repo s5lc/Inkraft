@@ -1,3 +1,7 @@
+plugins {
+    id 'me.shedaniel.unified-publishing'
+}
+
 architectury {
     platformSetupLoomIde()
     fabric()
@@ -10,8 +14,42 @@ dependencies {
     api "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     runtimeOnly "com.terraformersmc:modmenu:${rootProject.fabric_mod_menu_version}"
 
-    implementation(include("net.kyori:adventure-platform-fabric:${rootProject.adventure_platform_version}"))
+//    implementation(include("net.kyori:adventure-platform-fabric:${rootProject.adventure_platform_version}"))
 
     common(project(':')) { transitive false }
     shadowBundle project(path: ':', configuration: 'transformProductionFabric')
+}
+
+unifiedPublishing {
+    project {
+        displayName = "Inkraft Fabric ${rootProject.mod_version} for MC ${rootProject.minecraft_version}"
+        version = rootProject.version
+        gameVersions = [rootProject.minecraft_version]
+        gameLoaders = ['fabric']
+        releaseType = 'release'
+
+        mainPublication tasks.shadowJar
+
+        relations {
+            depends {
+                curseforge = 'fabric-api'
+                modrinth = 'fabric-api'
+            }
+
+            optional {
+                curseforge = 'modmenu'
+                modrinth = 'modmenu'
+            }
+        }
+
+        curseforge {
+            token = Objects.requireNonNullElse(System.getenv('CURSEFORGE_TOKEN'), "")
+            id = rootProject.curseforge_project_id
+        }
+
+        modrinth {
+            token = Objects.requireNonNullElse(System.getenv('MODRINTH_TOKEN'), "")
+            id = rootProject.modrinth_project_id
+        }
+    }
 }
