@@ -14,7 +14,7 @@ dependencies {
     api "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     runtimeOnly "com.terraformersmc:modmenu:${rootProject.fabric_mod_menu_version}"
 
-//    implementation(include("net.kyori:adventure-platform-fabric:${rootProject.adventure_platform_version}"))
+    implementation(include("net.kyori:adventure-platform-fabric:${rootProject.adventure_platform_version}"))
 
     common(project(':')) { transitive false }
     shadowBundle project(path: ':', configuration: 'transformProductionFabric')
