@@ -10,7 +10,7 @@ Supported variable types in the engine: Bool, Int32, Float32, String.
 
 ## Style Codes
 
-Story text supports escaped [formatting codes](https://minecraft.wiki/w/Formatting_codes). Unlike the style codes used by older Minecraft versions, Inkraft uses `&` as the escape character instead of `\u00A7`. It also supports `&$<six-digit hex>` for arbitrary RGB colors.
+Story text supports [MiniMessage](https://docs.advntr.dev/minimessage/format.html) to formatting. All standard MiniMessage tags are available, including colors, decorations, hover text, click events, gradients, and more.
 
 ## Engine Functions
 
