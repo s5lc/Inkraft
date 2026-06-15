@@ -8,7 +8,6 @@ import cx.rain.mc.inkraft.registry.InkraftRegistries;
 import cx.rain.mc.inkraft.timer.ITaskManager;
 import cx.rain.mc.inkraft.api.platform.storage.IInkPlayerData;
 import cx.rain.mc.inkraft.timer.cancellation.CancellableToken;
-import cx.rain.mc.inkraft.utility.StringArgumentParseHelper;
 import cx.rain.mc.inkraft.utility.TextStyleHelper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -324,12 +323,11 @@ public class StoryInstance {
                 var func = entry.getValue();
 
                 story.bindExternalFunction(func.getName(), args -> {
-                    var unescaped = Arrays.stream(args)
+                    var functionArgs = Arrays.stream(args)
                             .map(Object::toString)
-                            .map(StringArgumentParseHelper::unescape)
                             .toArray(String[]::new);
                     try {
-                        var result = func.apply(this, unescaped);
+                        var result = func.apply(this, functionArgs);
                         if (result instanceof IStoryVariable.Str(String value)) {
                             return value;
                         } else if (result instanceof IStoryVariable.Int(int value)) {
@@ -341,8 +339,8 @@ public class StoryInstance {
                         }
                     } catch (Throwable ex) {
                         log.warn("Running function {}", func.getName());
-                        for (int i = 0; i < unescaped.length; i++) {
-                            var a = unescaped[i];
+                        for (int i = 0; i < functionArgs.length; i++) {
+                            var a = functionArgs[i];
                             log.warn("Arg {}: {}", i, a);
                         }
                         log.warn("Inner: ", ex);

@@ -133,22 +133,16 @@ Note:
 | giveItem(itemId, count, nbtPath, nbtValue) | Gives an item to the player.             | itemId: The item ID.<br />count: The count. Nullable, defaults to 1, integer, at least 1.<br />nbtPath: The NBT path. Nullable.<br />nbtValue: The NBT value. Nullable.        |                                                                                                                                                                                |
 | takeItem(itemId, count, nbtPath, nbtValue) | Takes an item from the player.           | itemId: The item ID or tag.<br />count: The count. Nullable, defaults to 1, integer, at least 1.<br />nbtPath: The NBT path. Nullable.<br />nbtValue: The NBT value. Nullable. | bool, true means success, otherwise false.<br />If the player has fewer matching items than requested, all matching items will still be taken, but the function returns false. |
 
-### String Escaping for Function Arguments
+### Function String Argument Escaping
 
-When writing Ink scripts, some characters often need to be escaped. The engine provides string escaping for this purpose, only for function arguments.
+Special characters in function string arguments need to be escaped. Ink also uses `\` for escaping.
+The characters that need escaping are: `"`, `{`, `}`, `\`, `|`, and `#`. Standalone `<` and `>` do not need escaping. They only need to be escaped when they form sequences with Ink syntax meanings, such as `<>`, `->`, and `<-`, which should be written as `\<\>`, `\-\>`, and `\<\-`.
 
-All arguments passed to functions are escaped.
+For example, when a function argument needs to pass an NBT string, it can be written as:
 
-Use `$` as the escape character.
-
-| Escape sequence | Character |
-|-----------------|-----------|
-| $$              | $         |
-| $<              | {         |
-| $>              | }         |
-| $q              | "         |
-| $d              | '         |
-| $s              | #         |
+```ink
+~ giveItem("minecraft:diamond", 1, "components", "\{\"minecraft:custom_name\":'\{\"text\":\"Gold Diamond\"\}'\}")
+```
 
 ## Appendix
 Appendix A [All Engine Function Declarations](../assets/engine_functions_include.ink)
