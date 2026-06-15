@@ -178,7 +178,7 @@ public class StoryInstance {
     }
 
     private void showLine() {
-        player.sendSystemMessage(TextStyleHelper.parseStyle(currentLine().trim()));
+        player.sendSystemMessage(TextStyleHelper.parseStyle(currentLine().trim(), player.registryAccess()));
     }
 
     private void showChoices() {
@@ -187,7 +187,7 @@ public class StoryInstance {
         var choices = getChoices();
         for (int i = 0; i < choices.size(); i++) {
             var choice = choices.get(i);
-            var component = Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE, TextStyleHelper.parseStyle(choice.getText().trim())).withStyle(ChatFormatting.YELLOW);
+            var component = Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE, TextStyleHelper.parseStyle(choice.getText().trim(), player.registryAccess())).withStyle(ChatFormatting.YELLOW);
             component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token + " " + i)));
             component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT).withStyle(ChatFormatting.YELLOW))));
             player.sendSystemMessage(component);

@@ -1,7 +1,7 @@
 Inkraft 测试剧本三，样式代码：
-&c简单样式代码测试。
-混合一些&a&l粗体&r和&b&o斜体&r字。
-再来点HEX？&H66ccff洛天依蓝！
+<red>简单样式代码测试。</red>
+混合一些<green><bold>粗体</bold></green>和<aqua><italic>斜体</italic></aqua>字。
+再来点HEX？<#66ccff>洛天依蓝！</#66ccff>
 
 §nMinecraft Formatting
 
