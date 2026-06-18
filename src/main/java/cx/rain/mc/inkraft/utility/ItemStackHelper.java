@@ -18,25 +18,25 @@ public class ItemStackHelper {
 
     public static Predicate<ItemStack> predicateIdOrTag(HolderLookup.Provider registries, String id) {
         if (id.startsWith("#")) {
-            var tk = StringArgumentParseHelper.parseItemTag(id);
-            return item -> item.is(tk);
+            var tag = StringArgumentParseHelper.parseItemTag(id);
+            return i -> i.is(tag);
         } else {
-            var i = StringArgumentParseHelper.parseItem(registries, id);
-            return item -> item.is(i);
+            var item = StringArgumentParseHelper.parseItem(registries, id);
+            return i -> i.is(item);
         }
     }
 
     public static Predicate<ItemStack> predicateNbt(HolderLookup.Provider registries, String path, String value) {
         if (path.isEmpty() || value.isEmpty()) {
-            return item -> true;
+            return _ -> true;
         }
 
-        var n = StringArgumentParseHelper.parseNbt(value);
-        var p = StringArgumentParseHelper.parseNbtPath(path);
+        var expected = StringArgumentParseHelper.parseNbt(value);
+        var nbtPath = StringArgumentParseHelper.parseNbtPath(path);
         return item -> {
             try {
-                var l = p.get(saveItemStack(registries, item));
-                return !l.isEmpty() && l.stream().allMatch(e -> e.equals(n));
+                var actual = nbtPath.get(saveItemStack(registries, item));
+                return !actual.isEmpty() && actual.stream().allMatch(e -> e.equals(expected));
             } catch (CommandSyntaxException ignored) {
             }
 

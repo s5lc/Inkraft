@@ -4,45 +4,45 @@ INCLUDE engine_functions_include.ink
 12金苹果换1金钻石
 * [匹配名称和lore] -> buy_1
 * [只匹配lore] -> buy_2
+* [只匹配名称] -> buy_3
+
+// /give @s apple[minecraft:custom_name={"color":"gold","italic":false,"text":"金苹果"},minecraft:lore=[{"color":"aqua","italic":false,"text":"名字是金色的字的苹果"}]]
+// /give @s apple[minecraft:lore=[{"color":"aqua","italic":false,"text":"名字是金色的字的苹果"}]]
+// /give @s apple[minecraft:custom_name={"color":"gold","italic":false,"text":"金苹果"}]
+
+=== function take(nbt) ===
+~ temp has = hasItem("minecraft:apple", 12, "components", nbt)
+变量 has： {has}
+
+{ has:
+    ~ temp took = takeItem("minecraft:apple", 12, "components", nbt)
+    变量 took： {took}
+    { took:
+        ~ temp result = "\{\"minecraft:custom_name\":\{\"color\":\"gold\",\"italic\":false,\"text\":\"金钻石\"\},\"minecraft:lore\":[\{\"color\":\"aqua\",\"italic\":false,\"text\":\"qyl给的钻石\"\}]\}"
+        ~ temp gave = giveItem("minecraft:diamond", 1, "components", result)
+        变量 gave： {gave}
+        ~ return
+    - else:
+        takeItem 失败！
+        ~ return
+    }
+- else:
+    hasItem 失败！
+        ~ return
+}
 
 === buy_1 ===
-~ temp has = hasItem("minecraft:apple", 12, "components", "$<$qminecraft:custom_name$q:$d$<$qcolor$q:$qgold$q,$qitalic$q:false,$qtext$q:$q金苹果$q$>$d,$qminecraft:lore$q:[$d$<$qcolor$q:$qaqua$q,$qitalic$q:false,$qtext$q:$q名字是金色的字的苹果$q$>$d]$>")
-
-变量 has： {has}
-
-{ has:
-    ~ temp took = takeItem("minecraft:apple", 12, "components", "$<$qminecraft:custom_name$q:$d$<$qcolor$q:$qgold$q,$qitalic$q:false,$qtext$q:$q金苹果$q$>$d,$qminecraft:lore$q:[$d$<$qcolor$q:$qaqua$q,$qitalic$q:false,$qtext$q:$q名字是金色的字的苹果$q$>$d]$>")
-    变量 took： {took}
-    { took:
-        ~ temp gave = giveItem("minecraft:diamond", 1, "components", "$<$qminecraft:custom_name$q:$d$<$qcolor$q:$qgold$q,$qitalic$q:false,$qtext$q:$q金钻石$q$>$d,$qminecraft:lore$q:[$d$<$qcolor$q:$qaqua$q,$qitalic$q:false,$qtext$q:$qqyl给的钻石$q$>$d]$>")
-        变量 gave： {gave}
-        -> DONE
-    - else:
-        失败！
-        -> DONE
-    }
-- else:
-    失败！
-    -> DONE
-}
+~ temp nbt = "\{\"minecraft:custom_name\":\{\"color\":\"gold\",\"italic\":0b,\"text\":\"金苹果\"\},\"minecraft:lore\":[\{\"color\":\"aqua\",\"italic\":0b,\"text\":\"名字是金色的字的苹果\"\}]\}"
+~ take(nbt)
+-> DONE
 
 === buy_2 ===
-~ temp has = hasItem("minecraft:apple", 12, "components.minecraft:lore", "[$d$<$qcolor$q:$qaqua$q,$qitalic$q:false,$qtext$q:$q名字是金色的字的苹果$q$>$d]")
+~ temp nbt = "\{\"minecraft:lore\":[\{\"color\":\"aqua\",\"italic\":0b,\"text\":\"名字是金色的字的苹果\"\}]\}"
+~ take(nbt)
+-> DONE
 
-变量 has： {has}
 
-{ has:
-    ~ temp took = takeItem("minecraft:apple", 12, "components.minecraft:lore", "[$d$<$qcolor$q:$qaqua$q,$qitalic$q:false,$qtext$q:$q名字是金色的字的苹果$q$>$d]")
-    变量 took： {took}
-    { took:
-        ~ temp gave = giveItem("minecraft:diamond", 1, "components.minecraft:lore", "[$d$<$qcolor$q:$qaqua$q,$qitalic$q:false,$qtext$q:$qqyl给的钻石$q$>$d]")
-        变量 gave： {gave}
-        -> DONE
-    - else:
-        失败！
-        -> DONE
-    }
-- else:
-    失败！
-    -> DONE
-}
+=== buy_3 ===
+~ temp nbt = "\{\"minecraft:custom_name\":\{\"color\":\"gold\",\"italic\":0b,\"text\":\"金苹果\"\}\}"
+~ take(nbt)
+-> DONE

@@ -3,7 +3,6 @@ package cx.rain.mc.inkraft.story.function.game.command;
 import cx.rain.mc.inkraft.story.IStoryVariable;
 import cx.rain.mc.inkraft.story.StoryInstance;
 import cx.rain.mc.inkraft.story.function.IStoryFunction;
-import cx.rain.mc.inkraft.utility.StringArgumentParseHelper;
 import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
@@ -29,10 +28,9 @@ public class RunCommandFunction implements IStoryFunction {
     @Override
     public IStoryVariable.Int apply(StoryInstance instance, String... args) {
         var command = args[0];
-        var unescaped = StringArgumentParseHelper.unescape(command);
         var source = function.apply(instance.getPlayer());
         var server = instance.getPlayer().level().getServer();
-        return new IStoryVariable.Int(execute(unescaped, server, source));
+        return new IStoryVariable.Int(execute(command, server, source));
     }
 
     private static int execute(String command, MinecraftServer server, CommandSourceStack commandSourceStack) {

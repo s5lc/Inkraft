@@ -201,8 +201,6 @@ subprojects {
             }
 
             configureEach {
-                preferGradleTask = true
-
                 systemProperties.put('file.encoding', 'UTF-8')
                 systemProperties.put('stdout.encoding', 'UTF-8')
                 systemProperties.put('stderr.encoding', 'UTF-8')

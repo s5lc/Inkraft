@@ -8,7 +8,6 @@ import cx.rain.mc.inkraft.registry.InkraftRegistries;
 import cx.rain.mc.inkraft.timer.ITaskManager;
 import cx.rain.mc.inkraft.api.platform.storage.IInkPlayerData;
 import cx.rain.mc.inkraft.timer.cancellation.CancellableToken;
-import cx.rain.mc.inkraft.utility.StringArgumentParseHelper;
 import cx.rain.mc.inkraft.utility.TextStyleHelper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -178,7 +177,7 @@ public class StoryInstance {
     }
 
     private void showLine() {
-        player.sendSystemMessage(TextStyleHelper.parseStyle(currentLine().trim()));
+        player.sendSystemMessage(TextStyleHelper.parseStyle(currentLine().trim(), player.registryAccess()));
     }
 
     private void showChoices() {
@@ -187,9 +186,9 @@ public class StoryInstance {
         var choices = getChoices();
         for (int i = 0; i < choices.size(); i++) {
             var choice = choices.get(i);
-            var component = Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE, TextStyleHelper.parseStyle(choice.getText().trim())).withStyle(ChatFormatting.YELLOW);
+            var component = Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE, TextStyleHelper.parseStyle(choice.getText().trim(), player.registryAccess())).withStyle(ChatFormatting.YELLOW);
             component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token + " " + i)));
-            component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT).withStyle(ChatFormatting.YELLOW))));
+            component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT))));
             player.sendSystemMessage(component);
         }
     }
@@ -199,7 +198,7 @@ public class StoryInstance {
         data.setContinuousToken(token);
         var component = Component.translatable(ModConstants.Messages.STORY_NEXT).withStyle(ChatFormatting.YELLOW);
         component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token)));
-        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
+        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT))));
         player.sendSystemMessage(component);
     }
 
@@ -208,7 +207,7 @@ public class StoryInstance {
         data.setContinuousToken(token);
         var component = Component.translatable(ModConstants.Messages.STORY_NEXT).withStyle(ChatFormatting.YELLOW);
         component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft current")));
-        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
+        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT))));
         player.sendSystemMessage(component);
     }
 
@@ -324,12 +323,11 @@ public class StoryInstance {
                 var func = entry.getValue();
 
                 story.bindExternalFunction(func.getName(), args -> {
-                    var unescaped = Arrays.stream(args)
+                    var functionArgs = Arrays.stream(args)
                             .map(Object::toString)
-                            .map(StringArgumentParseHelper::unescape)
                             .toArray(String[]::new);
                     try {
-                        var result = func.apply(this, unescaped);
+                        var result = func.apply(this, functionArgs);
                         if (result instanceof IStoryVariable.Str(String value)) {
                             return value;
                         } else if (result instanceof IStoryVariable.Int(int value)) {
@@ -341,8 +339,8 @@ public class StoryInstance {
                         }
                     } catch (Throwable ex) {
                         log.warn("Running function {}", func.getName());
-                        for (int i = 0; i < unescaped.length; i++) {
-                            var a = unescaped[i];
+                        for (int i = 0; i < functionArgs.length; i++) {
+                            var a = functionArgs[i];
                             log.warn("Arg {}: {}", i, a);
                         }
                         log.warn("Inner: ", ex);
