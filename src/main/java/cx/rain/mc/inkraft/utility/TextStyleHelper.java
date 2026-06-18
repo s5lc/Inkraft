@@ -2,6 +2,7 @@ package cx.rain.mc.inkraft.utility;
 
 import net.kyori.adventure.platform.modcommon.MinecraftAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.ParsingException;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
@@ -20,6 +21,14 @@ public class TextStyleHelper {
             var adventureComponent = MINI_MESSAGE.deserialize(literalText);
             return MinecraftAudiences.nonWrappingSerializer(() -> registries).serialize(adventureComponent);
         } catch (RuntimeException ex) {
+            if (ex instanceof ParsingException pex) {
+                var detailMessage = pex.detailMessage();
+                if (detailMessage != null && detailMessage.contains("Legacy formatting codes")) {
+                    // Legacy formatting code (§) is not supported by minimessage. Fallback silently.
+                    // There's no adventure-text-serializer-legacy in adventure-platform-mod-shared, or we can make LegacyComponentSerializer as fallback.
+                    return Component.literal(literalText);
+                }
+            }
             log.warn("Failed to parse MiniMessage text: {}", literalText, ex);
             return Component.literal(literalText);
         }

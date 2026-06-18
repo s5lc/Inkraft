@@ -188,7 +188,7 @@ public class StoryInstance {
             var choice = choices.get(i);
             var component = Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE, TextStyleHelper.parseStyle(choice.getText().trim(), player.registryAccess())).withStyle(ChatFormatting.YELLOW);
             component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token + " " + i)));
-            component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT).withStyle(ChatFormatting.YELLOW))));
+            component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_CHOICE_HINT))));
             player.sendSystemMessage(component);
         }
     }
@@ -198,7 +198,7 @@ public class StoryInstance {
         data.setContinuousToken(token);
         var component = Component.translatable(ModConstants.Messages.STORY_NEXT).withStyle(ChatFormatting.YELLOW);
         component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft next " + token)));
-        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
+        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT))));
         player.sendSystemMessage(component);
     }
 
@@ -207,7 +207,7 @@ public class StoryInstance {
         data.setContinuousToken(token);
         var component = Component.translatable(ModConstants.Messages.STORY_NEXT).withStyle(ChatFormatting.YELLOW);
         component.setStyle(component.getStyle().withClickEvent(new ClickEvent.RunCommand("/inkraft current")));
-        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT).withStyle(ChatFormatting.YELLOW))));
+        component.setStyle(component.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.translatable(ModConstants.Messages.STORY_NEXT_HINT))));
         player.sendSystemMessage(component);
     }
 
