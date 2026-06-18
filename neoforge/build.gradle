@@ -49,6 +49,9 @@ unifiedPublishing {
         mainPublication tasks.shadowJar
 
         relations {
+            includes {
+                modrinth = 'adventure-platform-mod'
+            }
         }
 
         curseforge {

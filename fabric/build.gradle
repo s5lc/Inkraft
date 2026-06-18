@@ -40,6 +40,10 @@ unifiedPublishing {
                 curseforge = 'modmenu'
                 modrinth = 'modmenu'
             }
+
+            includes {
+                modrinth = 'adventure-platform-mod'
+            }
         }
 
         curseforge {
