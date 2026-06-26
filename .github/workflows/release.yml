@@ -1,4 +1,8 @@
 name: Mod Release
+
+permissions:
+  contents: read
+
 on:
   push:
     tags:
@@ -17,16 +21,18 @@ jobs:
   upload:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: 'build'
           path: 'output'
       - run: ls -R output
 
       - name: Publish release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: false
           prerelease: false
