@@ -160,7 +160,11 @@ allprojects {
         into 'build/generated/sources/mod-metadata'
     }
     sourceSets.main.resources.srcDir generateModMetadata
-    processResources.dependsOn generateModMetadata
+
+    processResources {
+        dependsOn generateModMetadata
+        exclude('.cache/**/*')
+    }
 
     publishing {
         repositories {
@@ -191,6 +195,8 @@ subprojects {
 
     loom {
         accessWidenerPath = project(':').loom.accessWidenerPath
+
+        nestJars tasks.named('shadowJar'), project.configurations.include
 
         runs {
             client {
@@ -245,10 +251,6 @@ subprojects {
     }
 
     shadowJar {
-        dependsOn(jar)
-        mainSpec.sourcePaths.clear()
-        from(zipTree(jar.archiveFile))
-
         exclude 'architectury.common.json'
         configurations = [project.configurations.shadowBundle]
         archiveClassifier = ''
