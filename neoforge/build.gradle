@@ -33,7 +33,6 @@ dependencies {
     // Due to https://github.com/PaperMC/adventure-platform-mod/issues/255
     compileOnly(include("net.kyori:adventure-platform-neoforge:${rootProject.adventure_platform_version}"))
 //    implementation(include("net.kyori:adventure-platform-neoforge:${rootProject.adventure_platform_version}"))
-    implementation(include("net.kyori:adventure-text-serializer-legacy:${rootProject.adventure_version}"))
 
     common(project(':')) { transitive false }
     shadowBundle project(path: ':', configuration: 'transformProductionNeoForge')

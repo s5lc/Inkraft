@@ -25,6 +25,13 @@ versionRange = "${neoforge_minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies.${mod_id}]]
+modId = "adventure_platform_neoforge"
+type = "required"
+versionRange = "${neoforge_adventure_platform_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
 [[mixins]]
 config = "inkraft.mixins.json"
 

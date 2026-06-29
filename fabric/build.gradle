@@ -15,7 +15,6 @@ dependencies {
     runtimeOnly "com.terraformersmc:modmenu:${rootProject.fabric_mod_menu_version}"
 
     implementation(include("net.kyori:adventure-platform-fabric:${rootProject.adventure_platform_version}"))
-    implementation(include("net.kyori:adventure-text-serializer-legacy:${rootProject.adventure_version}"))
 
     common(project(':')) { transitive false }
     shadowBundle project(path: ':', configuration: 'transformProductionFabric')

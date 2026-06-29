@@ -26,6 +26,7 @@
     "depends": {
         "minecraft": "${fabric_minecraft_version_range}",
         "fabricloader": "${fabric_loader_version_range}",
-        "fabric-api": "${fabric_api_version_range}"
+        "fabric-api": "${fabric_api_version_range}",
+        "adventure-platform-fabric": "${fabric_adventure_platform_version_range}"
     }
 }

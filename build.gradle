@@ -128,28 +128,30 @@ allprojects {
 
     var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
         var replaceTokens = [
-                build_time                      : ZonedDateTime.now().toString(),
-                mod_id                          : project.mod_id,
-                mod_version                     : project.mod_version,
-                mod_name                        : project.mod_name,
-                mod_description                 : project.mod_description,
-                mod_authors                     : project.mod_authors,
-                mod_license                     : project.mod_license,
-                mod_sources                     : project.mod_sources,
-                mod_issues_page                 : project.mod_issues_page,
-                maven_group                     : project.maven_group,
-                archive_base_name               : project.archive_base_name,
-                minecraft_version               : project.minecraft_version,
-                neoforge_loader_version         : project.neoforge_loader_version,
-                neoforge_version                : project.neoforge_version,
-                neoforge_minecraft_version_range: project.neoforge_minecraft_version_range,
-                neoforge_loader_version_range   : project.neoforge_loader_version_range,
-                neoforge_version_range          : project.neoforge_version_range,
-                fabric_loader_version           : project.fabric_loader_version,
-                fabric_api_version              : project.fabric_api_version,
-                fabric_minecraft_version_range  : project.fabric_minecraft_version_range,
-                fabric_loader_version_range     : project.fabric_loader_version_range,
-                fabric_api_version_range        : project.fabric_api_version_range
+                build_time                               : ZonedDateTime.now().toString(),
+                mod_id                                   : project.mod_id,
+                mod_version                              : project.mod_version,
+                mod_name                                 : project.mod_name,
+                mod_description                          : project.mod_description,
+                mod_authors                              : project.mod_authors,
+                mod_license                              : project.mod_license,
+                mod_sources                              : project.mod_sources,
+                mod_issues_page                          : project.mod_issues_page,
+                maven_group                              : project.maven_group,
+                archive_base_name                        : project.archive_base_name,
+                minecraft_version                        : project.minecraft_version,
+                neoforge_loader_version                  : project.neoforge_loader_version,
+                neoforge_version                         : project.neoforge_version,
+                neoforge_minecraft_version_range         : project.neoforge_minecraft_version_range,
+                neoforge_loader_version_range            : project.neoforge_loader_version_range,
+                neoforge_version_range                   : project.neoforge_version_range,
+                neoforge_adventure_platform_version_range: project.neoforge_adventure_platform_version_range,
+                fabric_loader_version                    : project.fabric_loader_version,
+                fabric_api_version                       : project.fabric_api_version,
+                fabric_minecraft_version_range           : project.fabric_minecraft_version_range,
+                fabric_loader_version_range              : project.fabric_loader_version_range,
+                fabric_api_version_range                 : project.fabric_api_version_range,
+                fabric_adventure_platform_version_range  : project.fabric_adventure_platform_version_range,
         ]
 
         inputs.properties replaceTokens
@@ -234,7 +236,8 @@ subprojects {
     }
 
     dependencies {
-        shadowBundle "com.bladecoder.ink:blade-ink:${rootProject.blade_ink_version}"
+        include "com.bladecoder.ink:blade-ink:${rootProject.blade_ink_version}"
+        implementation(include("net.kyori:adventure-text-serializer-legacy:${rootProject.adventure_version}"))
     }
 
     jar {
@@ -242,11 +245,13 @@ subprojects {
     }
 
     shadowJar {
+        dependsOn(jar)
+        mainSpec.sourcePaths.clear()
+        from(zipTree(jar.archiveFile))
+
         exclude 'architectury.common.json'
         configurations = [project.configurations.shadowBundle]
         archiveClassifier = ''
-
-        relocate 'com.bladecoder.ink', 'cx.rain.mc.inkraft.libs.com.bladecoder.ink'
     }
 
     sourcesJar {
